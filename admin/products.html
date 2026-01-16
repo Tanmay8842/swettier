@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Products - SHWETATTIRE Admin</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+    <div class="container">
+        <div class="header-content">
+            <div class="logo">
+                <h1>SHWETATTIRE</h1>
+                <p>Admin Dashboard</p>
+            </div>
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">Store</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="products.html" class="nav-link active">Products</a>
+                <a href="orders.html" class="nav-link">Orders</a>
+                <a href="analytics.html" class="nav-link">Analytics</a>
+                <a href="#" id="logout-btn" class="btn btn-secondary">Logout</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="main">
+    <div class="container">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;">
+            <h2 class="section-title" style="margin:0;">Manage Products</h2>
+            <a href="add-product.html" class="btn btn-primary">Add New Product</a>
+        </div>
+
+        <div id="admin-products-container">
+            <!-- Products will be loaded here -->
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <p>&copy; 2024 SHWETATTIRE. All rights reserved.</p>
+    </div>
+</footer>
+
+<!-- Admin Page Logic (NO AUTH HERE) -->
+<script src="../js/data/products.js"></script>
+<script src="../js/data/categories.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/admin.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        if (typeof initializeAdminProducts === "function") {
+            initializeAdminProducts();
+        }
+    });
+</script>
+
+<!-- 🔥 Firebase Logout -->
+<script type="module">
+import { auth, signOut } from "../js/firebase-auth.js";
+
+document.getElementById("logout-btn").addEventListener("click", function () {
+    signOut(auth).then(() => {
+        localStorage.clear();
+        window.location.href = "../login.html";
+    });
+});
+</script>
+
+<!-- 🔐 ADMIN GUARD (MUST BE LAST) -->
+<script type="module" src="../js/admin-guard.js"></script>
+
+</body>
+</html>

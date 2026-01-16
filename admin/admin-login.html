@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - SHWETATTIRE</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+    <div class="container">
+        <div class="header-content">
+            <div class="logo">
+                <h1>SHWETATTIRE</h1>
+                <p>Admin Panel</p>
+            </div>
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">Back to Store</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="main">
+    <div class="container">
+        <div class="form-container">
+            <h2 style="text-align:center;margin-bottom:2rem;">Admin Login</h2>
+
+            <form id="admin-login-form">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-large">
+                    Login as Admin
+                </button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <p>&copy; 2024 SHWETATTIRE. All rights reserved.</p>
+    </div>
+</footer>
+
+<!-- 🔥 FIREBASE ADMIN LOGIN (ONLY THIS SCRIPT) -->
+<script type="module">
+import { auth, signInWithEmailAndPassword } from "../js/firebase-auth.js";
+
+document.getElementById("admin-login-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    signInWithEmailAndPassword(auth, email, password)
+        .then((cred) => {
+            // Only admin email allowed
+            if (cred.user.email !== "admin@shwetattire.com") {
+                alert("Access denied. Not an admin.");
+                auth.signOut();
+                return;
+            }
+
+            localStorage.setItem("role", "admin");
+            window.location.href = "dashboard.html"; // ✅ CORRECT PATH
+        })
+        .catch(() => {
+            alert("Invalid admin email or password");
+        });
+});
+</script>
+
+</body>
+</html>

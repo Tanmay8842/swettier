@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHWETATTIRE - Fashion Store ERP System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>SHWETATTIRE</h1>
+                    <p>Fashion Store ERP System</p>
+                </div>
+                <nav class="nav">
+                    <a href="index.html" class="nav-link active">Home</a>
+                    <a href="cart.html" class="nav-link">
+                        Cart <span class="cart-count">0</span>
+                    </a>
+                    <a href="wishlist.html" class="nav-link">Wishlist</a>
+                    <a href="orders.html" class="nav-link">My Orders</a>
+                    <a href="admin/dashboard.html" id="admin-link" class="nav-link" style="display: none;">Admin</a>
+                    <a href="login.html" id="login-btn" class="btn btn-primary">Login</a>
+                    <a href="#" id="logout-btn" onclick="logout()" class="btn btn-secondary" style="display: none;">Logout</a>
+                    <span id="user-info" class="user-info" style="display: none;"></span>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero">
+                <h2>Welcome to SHWETATTIRE</h2>
+                <p>Discover the latest fashion trends and elegant designs</p>
+            </section>
+
+            <!-- Search and Filter Section -->
+            <section class="search-filter">
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Search products..." class="search-input">
+                </div>
+                <div class="filter-box">
+                    <label for="category-filter">Filter by Category:</label>
+                    <select id="category-filter" class="category-filter">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Products Section -->
+            <section class="products-section">
+                <h2 class="section-title">Our Products</h2>
+                <div id="products-container" class="products-grid">
+                    <!-- Products will be loaded here -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 SHWETATTIRE. All rights reserved.</p>
+        </div>
+    </footer>
+
+   <!-- Scripts -->
+<script src="js/data/categories.js"></script>
+<script src="js/data/products.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/orders.js"></script>
+<script src="js/main.js"></script>
+
+<script>
+  // Load categories into filter dropdown
+  document.addEventListener('DOMContentLoaded', function () {
+    const categories = getStorageData('categories', []);
+    const categoryFilter = document.getElementById('category-filter');
+
+    if (categoryFilter) {
+      categories.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category.name;
+        option.textContent = category.name;
+        categoryFilter.appendChild(option);
+      });
+    }
+  });
+</script>
+
+<!-- 🔥 Firebase Authentication Logic -->
+<script type="module">
+  import {
+    auth,
+    onAuthStateChanged,
+    signOut
+  } from "./js/firebase-auth.js";
+
+  const loginBtn = document.getElementById("login-btn");
+  const logoutBtn = document.getElementById("logout-btn");
+  const adminLink = document.getElementById("admin-link");
+  const userInfo = document.getElementById("user-info");
+
+  // Firebase auth state listener
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User logged in
+      loginBtn.style.display = "none";
+      logoutBtn.style.display = "inline-block";
+      userInfo.style.display = "inline-block";
+      userInfo.textContent = user.email;
+
+      // Admin rule (Phase-1)
+      if (user.email === "admin@shwetattire.com") {
+        adminLink.style.display = "inline-block";
+        localStorage.setItem("role", "admin");
+      } else {
+        adminLink.style.display = "none";
+        localStorage.setItem("role", "user");
+      }
+    } else {
+      // User not logged in
+      loginBtn.style.display = "inline-block";
+      logoutBtn.style.display = "none";
+      adminLink.style.display = "none";
+      userInfo.style.display = "none";
+      localStorage.removeItem("role");
+    }
+  });
+
+  // Logout function
+  window.logout = function () {
+    signOut(auth).then(() => {
+      localStorage.clear();
+      window.location.href = "login.html";
+    });
+  };
+</script>
+<script src="js/api.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>
+
