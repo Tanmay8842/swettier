@@ -78,6 +78,21 @@ function initializeHomePage() {
   setupSearchAndFilter();
 }
 
+import { fetchProductById } from "./api/products-api.js";
+
+async function initializeProductPage() {
+  const id = new URLSearchParams(window.location.search).get("id");
+  if (!id) return;
+
+  try {
+    const product = await fetchProductById(id);
+    displayProductDetails(product);
+  } catch {
+    redirectTo("index.html");
+  }
+}
+
+
 function displayProducts(searchTerm = '', categoryFilter = '') {
   let products = getAllProducts();
   
@@ -143,23 +158,41 @@ function setupSearchAndFilter() {
   }
 }
 
-function initializeProductPage() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const productId = urlParams.get('id');
-  
-  if (!productId) {
-    redirectTo('index.html');
-    return;
-  }
-  
-  const product = getProductById(productId);
-  if (!product) {
-    redirectTo('index.html');
-    return;
-  }
-  
+async function initializeProductPage() {
+  const id = new URLSearchParams(window.location.search).get("id");
+  if (!id) return;
+
+  const product = await fetchProductById(id);
+  if (!product) return;
+
   displayProductDetails(product);
 }
+
+import { fetchProducts } from "./api/products-api.js";
+
+async function loadProducts() {
+  const container = document.getElementById("products-container");
+  if (!container) return;
+
+  try {
+    const products = await fetchProducts();
+
+    container.innerHTML = products.map(p => `
+      <div class="product-card">
+        <img src="${p.image}" />
+        <h3>${p.name}</h3>
+        <p>₹${p.price}</p>
+        <a href="product.html?id=${p.id}" class="btn">View Product</a>
+        <button onclick="addToCart(${p.id})">Add to Cart</button>
+      </div>
+    `).join("");
+  } catch {
+    container.innerHTML = "<p>Failed to load products</p>";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadProducts);
+
 
 function displayProductDetails(product) {
   const container = document.getElementById('product-details');
@@ -448,53 +481,25 @@ function handleRegister(e) {
 }
 
 // Wishlist functions
+import { auth } from "./firebase-auth.js";
+
 function addToWishlist(productId) {
-  if (!isLoggedIn()) {
-    showNotification('Please login to add items to wishlist', 'error');
-    redirectTo('login.html');
+  if (!auth.currentUser) {
+    showNotification("Login required", "error");
+    redirectTo("login.html");
     return;
   }
-  
+
   const wishlist = getWishlist();
-  if (!wishlist.includes(parseInt(productId))) {
-    wishlist.push(parseInt(productId));
+  if (!wishlist.includes(productId)) {
+    wishlist.push(productId);
     saveWishlist(wishlist);
-    showNotification('Added to wishlist', 'success');
-  } else {
-    showNotification('Already in wishlist', 'info');
+    showNotification("Added to wishlist", "success");
   }
 }
 
-document.addEventListener("DOMContentLoaded", loadProducts);
 
-async function loadProducts() {
-  const container = document.getElementById("products-container");
-  if (!container) return;
 
-  try {
-    const products = await fetchProducts();
-
-    if (products.length === 0) {
-      container.innerHTML = "<p>No products available</p>";
-      return;
-    }
-
-    container.innerHTML = products.map(product => `
-      <div class="product-card">
-        <img src="${product.image}" alt="${product.name}">
-        <h3>${product.name}</h3>
-        <p>₹${product.price}</p>
-        <a href="product.html?id=${product.id}" class="btn">
-          View Product
-        </a>
-      </div>
-    `).join("");
-
-  } catch (error) {
-    console.error(error);
-    container.innerHTML = "<p>Failed to load products</p>";
-  }
-}
 
 
 function removeFromWishlist(productId) {
